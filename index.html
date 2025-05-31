@@ -1,1 +1,210 @@
-Hello World
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Countdown to November 2025</title>
+  <style>
+    body {
+      background-color: #1c1f2a;
+      color: #dce1e9;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 4vh;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      color: #b3c7d6;
+      text-shadow: 0 0 6px rgba(179, 199, 214, 0.1);
+    }
+
+    .section-title {
+      font-size: 1.7rem;
+      color: #b3c7d6;
+      margin-top: 3rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .time-box {
+      background-color: #2a2f3b;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
+      padding: 1.8rem 3rem;
+      margin-bottom: 1.5rem;
+      min-width: 320px;
+      text-align: center;
+    }
+
+    .time-value {
+      font-size: 5rem;
+      font-weight: 700;
+      color: #9db4c0;
+      letter-spacing: 0.05em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .time-label {
+      font-size: 1.1rem;
+      color: #a8b4c2;
+      margin-top: 0.3rem;
+      letter-spacing: 1.2px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    button {
+    background-color: #36425a; /* dark slate blue, matches box shades */
+    color: #a8b4c2;            /* same as label text for harmony */
+    border: none;
+    padding: 1.1rem 2.8rem;
+    border-radius: 15px;
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: background-color 0.25s ease, box-shadow 0.25s ease;
+    min-width: 120px;
+    box-shadow: 0 3px 7px rgba(54, 66, 90, 0.4);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    user-select: none;
+    }
+
+    button:hover {
+    background-color: #455672; /* slightly lighter slate blue */
+    box-shadow: 0 5px 12px rgba(69, 86, 114, 0.5);
+    }
+
+    @media (max-width: 500px) {
+      .time-box {
+        min-width: 90vw;
+        padding: 1.4rem 1.8rem;
+      }
+      .time-value {
+        font-size: 3.5rem;
+      }
+
+      button {
+        font-size: 1.1rem;
+        padding: 0.7rem 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>JEE/NSEP/IAT PREP 2025</h1>
+
+  <div class="section-title">Time Left</div>
+  <div class="time-box">
+    <div class="time-value" id="countdown-time">--:--:--:--</div>
+    <div class="time-label">Days : Hours : Minutes : Seconds</div>
+  </div>
+
+  <div class="section-title">Current Time</div>
+  <div class="time-box">
+    <div class="time-value" id="current-time">--:--:--</div>
+    <div class="time-label">Hours : Minutes : Seconds</div>
+  </div>
+
+  <div class="section-title">Stopwatch</div>
+  <div class="time-box">
+    <div class="time-value" id="stopwatch-time">00:00:00.00</div>
+    <div class="time-label">Minutes : Seconds . Milliseconds</div>
+  </div>
+
+  <div class="button-group">
+    <button onclick="startStopwatch()">Start</button>
+    <button onclick="pauseStopwatch()">Pause</button>
+    <button onclick="resetStopwatch()">Reset</button>
+  </div>
+
+  <script>
+    // Countdown (DD:HH:MM:SS)
+    const targetDate = new Date("November 1, 2025 00:00:00").getTime();
+    function updateCountdown() {
+      const now = Date.now();
+      let distance = targetDate - now;
+
+      if (distance < 0) {
+        distance = 0;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      // Format with leading zeros (days can be more than 2 digits)
+      const daysStr = String(days).padStart(2, '0');
+      const hoursStr = String(hours).padStart(2, '0');
+      const minutesStr = String(minutes).padStart(2, '0');
+      const secondsStr = String(seconds).padStart(2, '0');
+
+      document.getElementById("countdown-time").textContent = `${daysStr}:${hoursStr}:${minutesStr}:${secondsStr}`;
+    }
+
+    // Current Time (HH:MM:SS)
+    function updateCurrentTime() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      const s = String(now.getSeconds()).padStart(2, '0');
+
+      document.getElementById("current-time").textContent = `${h}:${m}:${s}`;
+    }
+
+    // Stopwatch (HH:MM:SS.ms)
+    let stopwatchInterval;
+    let elapsed = 0;
+    let running = false;
+
+    function updateStopwatchDisplay() {
+    const totalMs = elapsed;
+    const m = String(Math.floor(totalMs / 60000)).padStart(2, '0');
+    const s = String(Math.floor((totalMs % 60000) / 1000)).padStart(2, '0');
+    const ms = String(Math.floor((totalMs % 1000) / 10)).padStart(2, '0');
+
+    document.getElementById("stopwatch-time").textContent = `${m}:${s}.${ms}`;
+    }
+
+    function startStopwatch() {
+      if (running) return;
+      running = true;
+      const startTime = Date.now() - elapsed;
+      stopwatchInterval = setInterval(() => {
+        elapsed = Date.now() - startTime;
+        updateStopwatchDisplay();
+      }, 50);
+    }
+
+    function pauseStopwatch() {
+      running = false;
+      clearInterval(stopwatchInterval);
+    }
+
+    function resetStopwatch() {
+      pauseStopwatch();
+      elapsed = 0;
+      updateStopwatchDisplay();
+    }
+
+    // Initialize all timers
+    updateCountdown();
+    updateCurrentTime();
+    updateStopwatchDisplay();
+
+    setInterval(updateCountdown, 1000);
+    setInterval(updateCurrentTime, 1000);
+  </script>
+</body>
+</html>
